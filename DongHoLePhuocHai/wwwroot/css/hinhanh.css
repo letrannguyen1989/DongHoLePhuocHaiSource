@@ -1,0 +1,33 @@
+img{max-width:100%;}
+#tiles {
+list-style-type: none;
+position: relative; /** Needed to ensure items are laid out relative to this container **/
+margin: 0;
+}
+#tiles li {
+	width: 330px;
+	background: #ffffff;
+	-webkit-box-shadow: 0px 0px 8px #A7A7A7;
+	box-shadow: 0px 0px 8px #A7A7A7;
+	overflow: hidden;
+	display: none;
+	cursor: pointer;
+	padding: 5px;
+}
+
+#tiles li img {
+display: block;
+}
+
+#tiles ali:nth-child(3n) {
+height: 175px;
+}
+
+#tiles ali:nth-child(4n-3) {
+padding-bottom: 30px;
+}
+
+#tiles ali:nth-child(5n) {
+height: 250px;
+}
+
