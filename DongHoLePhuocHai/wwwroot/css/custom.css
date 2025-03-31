@@ -1,0 +1,155 @@
+.family-members {
+    padding: 1rem;
+}
+
+.family-members .page-title {
+    color: #2c3e50;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.family-members .table {
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.family-members .table thead {
+    background-color: #f8f9fa;
+}
+
+.family-members .table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+}
+
+.family-members .table td {
+    vertical-align: middle;
+}
+
+.family-members .add-member-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+
+.family-members .add-member-btn:hover {
+    background-color: #218838;
+    color: white;
+}
+
+.family-members .edit-btn {
+    color: #ffc107;
+    background: none;
+    border: none;
+    padding: 0.25rem;
+    margin: 0 0.25rem;
+}
+
+.family-members .delete-btn {
+    color: #dc3545;
+    background: none;
+    border: none;
+    padding: 0.25rem;
+    margin: 0 0.25rem;
+}
+
+.family-members .edit-btn:hover,
+.family-members .delete-btn:hover {
+    transform: scale(1.1);
+}
+
+.family-members .status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.family-members .status-alive {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.family-members .status-deceased {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Modal styles */
+.modal-content {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    padding: 1rem;
+}
+
+.modal-body {
+    padding: 1rem;
+}
+
+.form-control {
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+/* Loading spinner */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.loading-text {
+    margin-top: 1rem;
+    color: #666;
+    font-size: 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.family-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+    margin-bottom: 1rem;
+}
+
+.family-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn-action {
+    padding: 0.25rem 0.5rem;
+    margin: 0 0.25rem;
+} 

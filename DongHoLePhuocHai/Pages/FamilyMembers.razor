@@ -1,0 +1,306 @@
+@page "/family-members"
+@using DongHoLePhuocHai.Models
+@using DongHoLePhuocHai.Services
+@inject IFamilyService FamilyService
+@inject IJSRuntime JSRuntime
+
+<link href="css/family-members.css" rel="stylesheet" />
+
+<div class="family-members">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="page-title">
+                <i class="bi bi-people-fill me-2"></i>
+                Quản lý thành viên dòng họ
+            </h3>
+            <button class="add-member-btn" @onclick="ShowAddDialog">
+                <i class="bi bi-plus-circle me-2"></i>
+                Thêm thành viên
+            </button>
+        </div>
+
+        @if (members == null)
+        {
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Đang tải dữ liệu...</div>
+            </div>
+        }
+        else if (!members.Any())
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-people text-muted" style="font-size: 3rem;"></i>
+                <h4 class="mt-3 text-muted">Chưa có thành viên nào</h4>
+                <p class="text-muted">Bấm nút "Thêm thành viên" để bắt đầu</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Tên</th>
+                            <th>Năm sinh</th>
+                            <th>Năm mất</th>
+                            <th>Tình trạng</th>
+                            <th>Con của</th>
+                            <th class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var member in members)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-person-circle me-2 text-primary"></i>
+                                        @member.Name
+                                    </div>
+                                </td>
+                                <td>@member.BirthYear</td>
+                                <td>@(member.DeathYear?.ToString() ?? "-")</td>
+                                <td>
+                                    <span class="status-badge @(member.IsAlive ? "status-alive" : "status-deceased")">
+                                        <i class="bi @(member.IsAlive ? "bi-heart-pulse" : "bi-heart-pulse-fill") me-1"></i>
+                                        @(member.IsAlive ? "Còn sống" : "Đã mất")
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (member.ParentName != null)
+                                    {
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-person me-2 text-secondary"></i>
+                                            @member.ParentName
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <button class="edit-btn" @onclick="() => ShowEditDialog(member)" title="Sửa">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button class="delete-btn" @onclick="() => DeleteMember(member.Id)" title="Xóa">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@if (showDialog)
+{
+    <div class="modal show" style="display: block;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi @(editingMember.Id > 0 ? "bi-pencil-square" : "bi-plus-circle") me-2"></i>
+                        @(editingMember.Id > 0 ? "Sửa thành viên" : "Thêm thành viên")
+                    </h5>
+                    <button type="button" class="btn-close" @onclick="CloseDialog"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="@editingMember" OnValidSubmit="HandleValidSubmit">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-person"></i>
+                                Tên
+                            </label>
+                            <div class="form-field-wrapper">
+                                <InputText @bind-Value="editingMember.Name" class="form-control" placeholder="Nhập tên thành viên" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-calendar"></i>
+                                Năm sinh
+                            </label>
+                            <div class="form-field-wrapper">
+                                <InputNumber @bind-Value="editingMember.BirthYear" class="form-control" placeholder="Nhập năm sinh" />
+                            </div>
+                        </div>
+
+                        <div class="form-check">
+                            <label class="form-label">
+                                <i class="bi bi-heart-pulse"></i>
+                                Còn sống
+                            </label>
+                            <div class="form-field-wrapper">
+                                <InputCheckbox @bind-Value="editingMember.IsAlive" class="form-check-input" />
+                            </div>
+                        </div>
+
+                        @if (!editingMember.IsAlive)
+                        {
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-calendar-x"></i>
+                                    Năm mất
+                                </label>
+                                <div class="form-field-wrapper">
+                                    <InputNumber @bind-Value="editingMember.DeathYear" class="form-control" placeholder="Nhập năm mất" />
+                                </div>
+                            </div>
+                        }
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-person"></i>
+                                Con của
+                            </label>
+                            <div class="form-field-wrapper">
+                                <InputSelect @bind-Value="editingMember.ParentId" class="form-select">
+                                    <option value="">-- Chọn --</option>
+                                    @foreach (var member in members.Where(m => m.Id != editingMember.Id))
+                                    {
+                                        <option value="@member.Id">@member.Name</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+                            <button type="button" class="btn btn-secondary" @onclick="CloseDialog">
+                                <i class="bi bi-x-circle"></i>
+                                Hủy
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i>
+                                Lưu
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop show"></div>
+}
+
+@code {
+    private List<FamilyMemberDto>? members;
+    private bool showDialog;
+    private FamilyMemberDto editingMember = new();
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMembers();
+    }
+
+    private async Task LoadMembers()
+    {
+        var response = await FamilyService.GetAllMembersAsync();
+        if (response.Success && response.Data != null)
+        {
+            members = response.Data;
+        }
+        else
+        {
+            errorMessage = response.Message;
+            await JSRuntime.InvokeVoidAsync("alert", $"Lỗi: {errorMessage}");
+        }
+    }
+
+    private void ShowAddDialog()
+    {
+        try
+        {
+            editingMember = new FamilyMemberDto { IsAlive = true };
+            showDialog = true;
+            Console.WriteLine("Modal should be shown now");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in ShowAddDialog: {ex.Message}");
+        }
+    }
+
+    private void ShowEditDialog(FamilyMemberDto member)
+    {
+        try
+        {
+            editingMember = new FamilyMemberDto
+            {
+                Id = member.Id,
+                Name = member.Name,
+                BirthYear = member.BirthYear,
+                DeathYear = member.DeathYear,
+                IsAlive = member.IsAlive,
+                ParentId = member.ParentId
+            };
+            showDialog = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in ShowEditDialog: {ex.Message}");
+        }
+    }
+
+    private void CloseDialog()
+    {
+        try
+        {
+            showDialog = false;
+            editingMember = new();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in CloseDialog: {ex.Message}");
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        ApiResponse<FamilyMemberDto> response;
+        if (editingMember.Id > 0)
+        {
+            response = await FamilyService.UpdateMemberAsync(editingMember);
+        }
+        else
+        {
+            response = await FamilyService.CreateMemberAsync(editingMember);
+        }
+
+        if (response.Success)
+        {
+            await LoadMembers();
+            CloseDialog();
+        }
+        else
+        {
+            errorMessage = response.Message;
+            await JSRuntime.InvokeVoidAsync("alert", $"Lỗi: {errorMessage}");
+        }
+    }
+
+    private async Task DeleteMember(int id)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn xóa thành viên này?"))
+        {
+            var response = await FamilyService.DeleteMemberAsync(id);
+            if (response.Success)
+            {
+                await LoadMembers();
+            }
+            else
+            {
+                errorMessage = response.Message;
+                await JSRuntime.InvokeVoidAsync("alert", $"Lỗi: {errorMessage}");
+            }
+        }
+    }
+} 
