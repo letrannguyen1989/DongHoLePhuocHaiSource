@@ -7,6 +7,7 @@ public class FamilyMemberDto
     public int? BirthYear { get; set; }
     public int? DeathYear { get; set; }
     public bool IsAlive { get; set; }
+    public Gender Gender { get; set; }
     public int? ParentId { get; set; }
     public string ParentName { get; set; }
 } 

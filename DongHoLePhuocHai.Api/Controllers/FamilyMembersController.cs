@@ -21,7 +21,6 @@ public class MembersController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<FamilyMemberDto>>> GetMembers()
     {
-
         var members = await _context.FamilyMembers
                 .Include(m => m.Parent)
                 .Select(m => new FamilyMemberDto
@@ -29,7 +28,9 @@ public class MembersController : ControllerBase
                     Id = m.Id,
                     Name = m.Name,
                     BirthYear = m.BirthYear,
+                    DeathYear = m.DeathYear,
                     IsAlive = m.IsAlive,
+                    Gender = m.Gender,
                     ParentId = m.ParentId,
                     ParentName = m.Parent == null ? null : m.Parent.Name
                 })

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using DongHoLePhuocHai.Models;
 
 namespace DongHoLePhuocHai.Api.Models;
 
@@ -17,6 +18,9 @@ public class FamilyMember
     public int? DeathYear { get; set; }
 
     public bool IsAlive { get; set; }
+
+    [Required]
+    public Gender Gender { get; set; }
 
     public int? ParentId { get; set; }
 

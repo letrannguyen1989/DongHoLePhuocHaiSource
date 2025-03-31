@@ -5,6 +5,7 @@
 @inject IJSRuntime JSRuntime
 
 <link href="css/family-members.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
 <div class="family-members">
     <div class="container-fluid">
@@ -43,6 +44,7 @@
                             <th>Tên</th>
                             <th>Năm sinh</th>
                             <th>Năm mất</th>
+                            <th>Giới tính</th>
                             <th>Tình trạng</th>
                             <th>Con của</th>
                             <th class="text-center">Thao tác</th>
@@ -60,6 +62,12 @@
                                 </td>
                                 <td>@member.BirthYear</td>
                                 <td>@(member.DeathYear?.ToString() ?? "-")</td>
+                                <td>
+                                    <span class="@(member.Gender == Gender.Male ? "text-primary" : "text-danger")">
+                                        <i class="bi @(member.Gender == Gender.Male ? "bi-gender-male" : "bi-gender-female") me-1"></i>
+                                        @(member.Gender == Gender.Male ? "Nam" : "Nữ")
+                                    </span>
+                                </td>
                                 <td>
                                     <span class="status-badge @(member.IsAlive ? "status-alive" : "status-deceased")">
                                         <i class="bi @(member.IsAlive ? "bi-heart-pulse" : "bi-heart-pulse-fill") me-1"></i>
@@ -80,12 +88,14 @@
                                     }
                                 </td>
                                 <td class="text-center">
-                                    <button class="edit-btn" @onclick="() => ShowEditDialog(member)" title="Sửa">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-                                    <button class="delete-btn" @onclick="() => DeleteMember(member.Id)" title="Xóa">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                                    <div class="action-buttons">
+                                        <a class="action-icon edit-icon" @onclick="() => ShowEditDialog(member)" title="Sửa">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a class="action-icon delete-icon" @onclick="() => DeleteMember(member.Id)" title="Xóa">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -130,6 +140,19 @@
                             </label>
                             <div class="form-field-wrapper">
                                 <InputNumber @bind-Value="editingMember.BirthYear" class="form-control" placeholder="Nhập năm sinh" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-gender-ambiguous"></i>
+                                Giới tính
+                            </label>
+                            <div class="form-field-wrapper">
+                                <InputSelect @bind-Value="editingMember.Gender" class="form-select">
+                                    <option value="@Gender.Male">Nam</option>
+                                    <option value="@Gender.Female">Nữ</option>
+                                </InputSelect>
                             </div>
                         </div>
 
@@ -240,6 +263,7 @@
                 BirthYear = member.BirthYear,
                 DeathYear = member.DeathYear,
                 IsAlive = member.IsAlive,
+                Gender = member.Gender,
                 ParentId = member.ParentId
             };
             showDialog = true;
