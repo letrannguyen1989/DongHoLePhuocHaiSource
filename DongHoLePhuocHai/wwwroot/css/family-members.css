@@ -210,6 +210,44 @@
     width: 100%;
 }
 
+/* Modal form styles */
+.modal .modal-body .form-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.modal .modal-body .form-label {
+    min-width: 120px;
+    margin: 0;
+}
+
+.modal .modal-body .form-field-wrapper {
+    flex: 1;
+}
+
+/* Modal form-check styles */
+.modal .modal-body .form-check {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+    padding: 0;
+}
+
+.modal .modal-body .form-check .form-label {
+    min-width: 120px;
+    margin: 0;
+}
+
+.modal .modal-body .form-check .form-field-wrapper {
+    flex: 1;
+}
+
 .form-control, .form-select {
     border-radius: 12px;
     border: 2px solid #e9ecef;
