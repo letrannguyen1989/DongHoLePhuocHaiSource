@@ -9,15 +9,116 @@
 
 <div class="family-members">
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="page-title">
+        <div class="mb-4">
+            <h2 class="page-title">
                 <i class="bi bi-people-fill me-2"></i>
                 Quản lý thành viên dòng họ
-            </h3>
-            <button class="add-member-btn" @onclick="ShowAddDialog">
-                <i class="bi bi-plus-circle me-2"></i>
-                Thêm thành viên
-            </button>
+            </h2>
+        </div>
+
+        <div class="search-form mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="modal-title mb-0" style="font-size:1.3rem;">
+                        <i class="bi bi-funnel text-primary me-2"></i>
+                        Tìm kiếm thành viên
+                    </h5>
+                </div>
+                <div class="card-body" style="margin-top:10px;">
+                    <div class="row g-3">
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-person"></i>
+                                    Tên thành viên
+                                </label>
+                                <div class="form-field-wrapper">
+                                    <InputText @bind-Value="searchName" class="form-control" placeholder="Nhập tên cần tìm" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2"></div>
+
+                        <div class="col-12 col-sm-6 col-md-2">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-123"></i>
+                                    Đời thứ
+                                </label>
+                                <div class="form-field-wrapper">
+                                    <InputSelect @bind-Value="searchGeneration" class="form-select">
+                                        <option value="0">Tất cả</option>
+                                        @foreach (var option in generationOptions.Where(o => o.Value > 0))
+                                        {
+                                            <option value="@option.Value">@option.Display</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-2">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-gender-ambiguous"></i>
+                                    Giới tính
+                                </label>
+                                <div class="form-field-wrapper">
+                                    <InputSelect @bind-Value="searchGender" class="form-select">
+                                        <option value="">Tất cả</option>
+                                        <option value="@Gender.Male">Nam</option>
+                                        <option value="@Gender.Female">Nữ</option>
+                                    </InputSelect>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-2">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-heart-pulse"></i>
+                                    Tình trạng
+                                </label>
+                                <div class="form-field-wrapper">
+                                    <InputSelect @bind-Value="searchStatusString" class="form-select">
+                                        <option value="all">Tất cả</option>
+                                        <option value="alive">Còn sống</option>
+                                        <option value="deceased">Đã mất</option>
+                                    </InputSelect>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-2">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-person"></i>
+                                    Cha
+                                </label>
+                                <div class="form-field-wrapper">
+                                    <InputSelect @bind-Value="searchParentId" class="form-select">
+                                        <option value="">Tất cả</option>
+                                        @foreach (var member in members ?? new List<FamilyMemberDto>())
+                                        {
+                                            <option value="@member.Id">@member.Name</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="text-end">
+                                <button class="btn btn-secondary" @onclick="ResetSearch">
+                                    <i class="bi bi-x-circle"></i>
+                                    Đặt lại
+                                </button>
+                                <button class="btn btn-primary" @onclick="ApplySearch">
+                                    <i class="bi bi-check-circle"></i>
+                                    Tìm kiếm
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         @if (members == null)
@@ -37,6 +138,14 @@
         }
         else
         {
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0" style="font-size:1.3rem;margin-top:0px;margin-bottom:10px;">Danh sách thành viên</h5>
+                <button class="btn btn-primary" @onclick="ShowAddDialog">
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Thêm thành viên
+                </button>
+            </div>
+
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
@@ -44,14 +153,15 @@
                             <th>Tên</th>
                             <th>Năm sinh</th>
                             <th>Giới tính</th>
-                            <th>Năm mất</th>
+                            <th>Cha</th>
+                            <th>Đời thứ</th>
                             <th>Tình trạng</th>
-                            <th>Con của</th>
+                            <th>Năm mất</th>
                             <th class="text-center">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var member in members)
+                        @foreach (var member in filteredMembers)
                         {
                             <tr>
                                 <td>
@@ -67,13 +177,6 @@
                                         @(member.Gender == Gender.Male ? "Nam" : "Nữ")
                                     </span>
                                 </td>
-                                <td>@(member.DeathYear?.ToString() ?? "-")</td>
-                                <td>
-                                    <span class="status-badge @(member.IsAlive ? "status-alive" : "status-deceased")">
-                                        <i class="bi @(member.IsAlive ? "bi-heart-pulse" : "bi-heart-pulse-fill") me-1"></i>
-                                        @(member.IsAlive ? "Còn sống" : "Đã mất")
-                                    </span>
-                                </td>
                                 <td>
                                     @if (member.ParentName != null)
                                     {
@@ -87,6 +190,14 @@
                                         <span class="text-muted">-</span>
                                     }
                                 </td>
+                                <td>@ConvertToRoman(member.Generation)</td>
+                                <td>
+                                    <span class="status-badge @(member.IsAlive ? "status-alive" : "status-deceased")">
+                                        <i class="bi @(member.IsAlive ? "bi-heart-pulse" : "bi-heart-pulse-fill") me-1"></i>
+                                        @(member.IsAlive ? "Còn sống" : "Đã mất")
+                                    </span>
+                                </td>
+                                <td>@(member.DeathYear?.ToString() ?? "-")</td>
                                 <td class="text-center">
                                     <div class="action-buttons">
                                         <a class="action-icon edit-icon" @onclick="() => ShowEditDialog(member)" title="Sửa">
@@ -130,6 +241,22 @@
                             </label>
                             <div class="form-field-wrapper">
                                 <InputText @bind-Value="editingMember.Name" class="form-control" placeholder="Nhập tên thành viên" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-123"></i>
+                                Đời thứ
+                            </label>
+                            <div class="form-field-wrapper">
+                                <InputSelect @bind-Value="editingMember.Generation" class="form-select">
+                                    <option value="0">-- Chọn đời thứ --</option>
+                                    @foreach (var option in generationOptions.Where(o => o.Value > 0))
+                                    {
+                                        <option value="@option.Value">@option.Display</option>
+                                    }
+                                </InputSelect>
                             </div>
                         </div>
 
@@ -182,7 +309,7 @@
                         <div class="form-group">
                             <label class="form-label">
                                 <i class="bi bi-person"></i>
-                                Con của
+                                Cha
                             </label>
                             <div class="form-field-wrapper">
                                 <InputSelect @bind-Value="editingMember.ParentId" class="form-select">
@@ -215,13 +342,102 @@
 
 @code {
     private List<FamilyMemberDto>? members;
+    private List<FamilyMemberDto>? filteredMembers;
     private bool showDialog;
     private FamilyMemberDto editingMember = new();
     private string? errorMessage;
 
+    // Search parameters
+    private string searchName = "";
+    private int searchGeneration;
+    private Gender? searchGender;
+    private string searchStatusString = "all";
+    private int? searchParentId;
+
+    private readonly List<(int Value, string Display)> generationOptions = new()
+    {
+        (0, ""),
+        (1, "I"),
+        (2, "II"),
+        (3, "III"),
+        (4, "IV"),
+        (5, "V"),
+        (6, "VI"),
+        (7, "VII"),
+        (8, "VIII"),
+        (9, "IX"),
+        (10, "X")
+    };
+
+    private string ConvertToRoman(int number)
+    {
+        if (number <= 0) return "-";
+        
+        var romanNumerals = new[]
+        {
+            new { Value = 1000, Symbol = "M" },
+            new { Value = 900, Symbol = "CM" },
+            new { Value = 500, Symbol = "D" },
+            new { Value = 400, Symbol = "CD" },
+            new { Value = 100, Symbol = "C" },
+            new { Value = 90, Symbol = "XC" },
+            new { Value = 50, Symbol = "L" },
+            new { Value = 40, Symbol = "XL" },
+            new { Value = 10, Symbol = "X" },
+            new { Value = 9, Symbol = "IX" },
+            new { Value = 5, Symbol = "V" },
+            new { Value = 4, Symbol = "IV" },
+            new { Value = 1, Symbol = "I" }
+        };
+
+        var result = new System.Text.StringBuilder();
+        var remaining = number;
+
+        foreach (var numeral in romanNumerals)
+        {
+            while (remaining >= numeral.Value)
+            {
+                result.Append(numeral.Symbol);
+                remaining -= numeral.Value;
+            }
+        }
+
+        return result.ToString();
+    }
+
     protected override async Task OnInitializedAsync()
     {
         await LoadMembers();
+    }
+
+    private void ApplySearch()
+    {
+        if (members == null) return;
+
+        bool? searchIsAlive = searchStatusString switch
+        {
+            "alive" => true,
+            "deceased" => false,
+            _ => null
+        };
+
+        filteredMembers = members.Where(member =>
+            (string.IsNullOrEmpty(searchName) || member.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase)) &&
+            (searchGeneration == 0 || member.Generation == searchGeneration) &&
+            (!searchGender.HasValue || member.Gender == searchGender) &&
+            (!searchIsAlive.HasValue || member.IsAlive == searchIsAlive) &&
+            (!searchParentId.HasValue || member.ParentId == searchParentId)
+        ).ToList();
+    }
+
+    private void ResetSearch()
+    {
+        searchName = "";
+        searchGeneration = 0;
+        searchGender = null;
+        searchStatusString = "all";
+        searchParentId = null;
+        filteredMembers = members;
     }
 
     private async Task LoadMembers()
@@ -230,6 +446,7 @@
         if (response.Success && response.Data != null)
         {
             members = response.Data;
+            filteredMembers = members;
         }
         else
         {
@@ -264,7 +481,8 @@
                 DeathYear = member.DeathYear,
                 IsAlive = member.IsAlive,
                 Gender = member.Gender,
-                ParentId = member.ParentId
+                ParentId = member.ParentId,
+                Generation = member.Generation
             };
             showDialog = true;
         }
@@ -328,3 +546,31 @@
         }
     }
 } 
+
+<style>
+    .search-form .form-label {
+        font-size: 1.1rem;
+    }
+
+    .search-form .form-field-wrapper {
+        margin-bottom: 0.5rem;
+    }
+
+    .search-form .form-control,
+    .search-form .form-select {
+        width: 100%;
+    }
+
+    .search-form .btn {
+        padding: 0.5rem 1rem;
+        margin-left: 0.5rem;
+    }
+
+    .search-form .btn i {
+        margin-right: 0.5rem;
+    }
+
+    ::deep .search-form .form-group {
+        margin-bottom: 0.75rem;
+    }
+</style> 

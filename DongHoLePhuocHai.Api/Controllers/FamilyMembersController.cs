@@ -32,7 +32,8 @@ public class MembersController : ControllerBase
                     IsAlive = m.IsAlive,
                     Gender = m.Gender,
                     ParentId = m.ParentId,
-                    ParentName = m.Parent == null ? null : m.Parent.Name
+                    ParentName = m.Parent == null ? null : m.Parent.Name,
+                    Generation = m.Generation
                 })
                 .ToListAsync();
 

@@ -24,6 +24,8 @@ public class FamilyMember
 
     public int? ParentId { get; set; }
 
+    public int Generation { get; set; }
+
     [ForeignKey("ParentId")]
     public FamilyMember? Parent { get; set; }
 

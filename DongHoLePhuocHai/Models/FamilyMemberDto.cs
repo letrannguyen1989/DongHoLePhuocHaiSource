@@ -10,4 +10,5 @@ public class FamilyMemberDto
     public Gender Gender { get; set; }
     public int? ParentId { get; set; }
     public string ParentName { get; set; }
+    public int Generation { get; set; }
 } 
