@@ -93,13 +93,26 @@
                                     Cha
                                 </label>
                                 <div class="form-field-wrapper">
-                                    <InputSelect @bind-Value="searchParentId" class="form-select">
-                                        <option value="">Tất cả</option>
-                                        @foreach (var member in members ?? new List<FamilyMemberDto>())
-                                        {
-                                            <option value="@member.Id">@member.Name</option>
-                                        }
-                                    </InputSelect>
+                                    <div class="searchable-select">
+                                        <input type="text" 
+                                               class="form-control search-input" 
+                                               placeholder="Tìm kiếm tên cha..."
+                                               value="@searchParentText"
+                                               @oninput="@(e => OnSearchParentTextChanged(e.Value?.ToString() ?? ""))"
+                                               @onfocus="ShowSearchParentDropdown"
+                                               @onblur="HideSearchParentDropdown" />
+                                        <div class="searchable-select-dropdown @(showSearchParentDropdown ? "show" : "")">
+                                            <div class="searchable-select-option" @onclick="() => SelectSearchParent(null)">
+                                                Tất cả
+                                            </div>
+                                            @foreach (var member in filteredSearchParentOptions)
+                                            {
+                                                <div class="searchable-select-option" @onclick="() => SelectSearchParent(member.Id)">
+                                                    @member.Name
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -272,13 +285,26 @@
                                 Cha
                             </label>
                             <div class="form-field-wrapper">
-                                <InputSelect @bind-Value="editingMember.ParentId" class="form-select">
-                                    <option value="">-- Chọn --</option>
-                                    @foreach (var member in members.Where(m => m.Id != editingMember.Id))
-                                    {
-                                        <option value="@member.Id">@member.Name</option>
-                                    }
-                                </InputSelect>
+                                <div class="searchable-select">
+                                    <input type="text" 
+                                           class="form-control search-input" 
+                                           placeholder="Tìm kiếm tên cha..."
+                                           value="@editParentText"
+                                           @oninput="@(e => OnEditParentTextChanged(e.Value?.ToString() ?? ""))"
+                                           @onfocus="ShowEditParentDropdown"
+                                           @onblur="HideEditParentDropdown" />
+                                    <div class="searchable-select-dropdown @(showEditParentDropdown ? "show" : "")">
+                                        <div class="searchable-select-option" @onclick="() => SelectEditParent(null)">
+                                            -- Chọn --
+                                        </div>
+                                        @foreach (var member in filteredEditParentOptions)
+                                        {
+                                            <div class="searchable-select-option" @onclick="() => SelectEditParent(member.Id)">
+                                                @member.Name
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -352,6 +378,12 @@
     private Gender? searchGender;
     private string searchStatusString = "all";
     private int? searchParentId;
+    private string searchParentText = "";
+    private string editParentText = "";
+    private bool showSearchParentDropdown = false;
+    private bool showEditParentDropdown = false;
+    private List<FamilyMemberDto> filteredSearchParentOptions = new();
+    private List<FamilyMemberDto> filteredEditParentOptions = new();
 
     private readonly List<(int Value, string Display)> generationOptions = new()
     {
@@ -483,6 +515,9 @@
                 ParentId = member.ParentId,
                 Generation = member.Generation
             };
+            editParentText = member.ParentId.HasValue 
+                ? members?.FirstOrDefault(m => m.Id == member.ParentId)?.Name ?? ""
+                : "";
             showDialog = true;
         }
         catch (Exception ex)
@@ -497,6 +532,8 @@
         {
             showDialog = false;
             editingMember = new();
+            editParentText = "";
+            showEditParentDropdown = false;
         }
         catch (Exception ex)
         {
@@ -546,7 +583,91 @@
             }
         }
     }
-} 
+
+    private void ShowSearchParentDropdown()
+    {
+        showSearchParentDropdown = true;
+        UpdateSearchParentOptions();
+    }
+
+    private void HideSearchParentDropdown()
+    {
+        Task.Delay(200).ContinueWith(_ => InvokeAsync(() => showSearchParentDropdown = false));
+    }
+
+    private void ShowEditParentDropdown()
+    {
+        showEditParentDropdown = true;
+        UpdateEditParentOptions();
+    }
+
+    private void HideEditParentDropdown()
+    {
+        Task.Delay(200).ContinueWith(_ => InvokeAsync(() => showEditParentDropdown = false));
+    }
+
+    private void OnSearchParentTextChanged(string value)
+    {
+        searchParentText = value;
+        UpdateSearchParentOptions();
+    }
+
+    private void OnEditParentTextChanged(string value)
+    {
+        editParentText = value;
+        UpdateEditParentOptions();
+    }
+
+    private void UpdateSearchParentOptions()
+    {
+        if (members == null) return;
+
+        if (string.IsNullOrEmpty(searchParentText))
+        {
+            filteredSearchParentOptions = members;
+            return;
+        }
+
+        var searchText = searchParentText.Trim().ToLower();
+        filteredSearchParentOptions = members
+            .Where(m => m.Name.ToLower().Contains(searchText))
+            .ToList();
+    }
+
+    private void UpdateEditParentOptions()
+    {
+        if (members == null) return;
+
+        if (string.IsNullOrEmpty(editParentText))
+        {
+            filteredEditParentOptions = members.Where(m => m.Id != editingMember.Id).ToList();
+            return;
+        }
+
+        var searchText = editParentText.Trim().ToLower();
+        filteredEditParentOptions = members
+            .Where(m => m.Id != editingMember.Id && m.Name.ToLower().Contains(searchText))
+            .ToList();
+    }
+
+    private void SelectSearchParent(int? parentId)
+    {
+        searchParentId = parentId;
+        searchParentText = parentId.HasValue 
+            ? members?.FirstOrDefault(m => m.Id == parentId)?.Name ?? ""
+            : "";
+        showSearchParentDropdown = false;
+    }
+
+    private void SelectEditParent(int? parentId)
+    {
+        editingMember.ParentId = parentId;
+        editParentText = parentId.HasValue 
+            ? members?.FirstOrDefault(m => m.Id == parentId)?.Name ?? ""
+            : "";
+        showEditParentDropdown = false;
+    }
+}
 
 <style>
     .search-form .form-label {
@@ -573,5 +694,44 @@
 
     ::deep .search-form .form-group {
         margin-bottom: 0.75rem;
+    }
+
+    .searchable-select {
+        position: relative;
+        width: 100%;
+    }
+
+    .searchable-select-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        margin-top: 0.25rem;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    .searchable-select-dropdown.show {
+        display: block;
+    }
+
+    .searchable-select-option {
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .searchable-select-option:hover {
+        background-color: #f8f9fa;
+    }
+
+    .searchable-select-option:active {
+        background-color: #e9ecef;
     }
 </style> 
