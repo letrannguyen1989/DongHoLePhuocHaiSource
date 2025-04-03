@@ -519,6 +519,7 @@
         if (response.Success)
         {
             await LoadMembers();
+            ApplySearch();
             CloseDialog();
         }
         else
@@ -536,6 +537,7 @@
             if (response.Success)
             {
                 await LoadMembers();
+                ApplySearch();
             }
             else
             {
